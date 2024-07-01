@@ -6,11 +6,13 @@ class Sender
     {
         try
         {
-            string ipAddress = "";
+            string ipAddress = "192.168.1.100";
             int Port = 5713;
-            TcpClient receiverClient = new TcpClient();
+            TcpClient receiverClient = new TcpClient(ipAddress,Port);
             NetworkStream receiverStream = receiverClient.GetStream();
             StreamWriter writer = new StreamWriter(receiverStream);
+            writer.WriteLine("SENDER");
+            writer.Flush();
             Console.WriteLine("Enter message here");
             string message;
             while((message = Console.ReadLine())  != null)
