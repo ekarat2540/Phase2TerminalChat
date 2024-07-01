@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
 
 class Sender
 {
@@ -8,21 +9,32 @@ class Sender
         {
             string ipAddress = "192.168.1.100";
             int Port = 5713;
-            TcpClient receiverClient = new TcpClient(ipAddress,Port);
-            NetworkStream receiverStream = receiverClient.GetStream();
-            StreamWriter writer = new StreamWriter(receiverStream);
-            writer.WriteLine("SENDER");
-            writer.Flush();
+            TcpClient serverClient = new TcpClient(ipAddress, Port);
+            NetworkStream serverStream = serverClient.GetStream();
+            StreamWriter serverWriter = new StreamWriter(serverStream);
+            serverWriter.WriteLine("SENDER");
+            serverWriter.Flush();
+            serverWriter.Close();
+            serverStream.Close();
+            serverClient.Close();
             Console.WriteLine("Enter message here");
+            
+            TcpListener listener = new TcpListener(IPAddress.Any, 5714);
+            listener.Start();
+            TcpClient receiverClient = await listener.AcceptTcpClientAsync();
+            NetworkStream receiverStream = receiverClient.GetStream();
+            StreamWriter writerReceiver = new StreamWriter(receiverStream);
+
             string message;
-            while((message = Console.ReadLine())  != null)
+            while ((message = Console.ReadLine()) != null)
             {
-                writer.WriteLine(message);
-                writer.Flush();
+                writerReceiver.WriteLine(message);
+                writerReceiver.Flush();
             }
-            writer.Close();
+            writerReceiver.Close();
             receiverStream.Close();
             receiverClient.Close();
+            listener.Stop();
 
         }
         catch (Exception ex)
