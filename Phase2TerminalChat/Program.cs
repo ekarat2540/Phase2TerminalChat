@@ -20,26 +20,18 @@ class Sender
             serverWriter.WriteLine("SENDER");
             serverWriter.Flush();
             Console.WriteLine("Enter message here...");
-            string ipAndPort = await serverReader.ReadLineAsync();
-            var split = ipAndPort.Split(":");
-            string ipSender = split[0];
-            string port = split[1];
-            serverReader.Close();
-            serverWriter.Close();
-            serverStream.Close();
-            serverClient.Close();
-            TcpClient client2 = new TcpClient(ipSender, int.Parse(port));
-            NetworkStream stream2 = client2.GetStream();
-            StreamWriter serverWriter2 = new StreamWriter(stream2);
+
             string message;
             while ((message = Console.ReadLine()) != null)
             {
-                serverWriter2.WriteLine(message);
-                serverWriter2.Flush();
+                serverWriter.WriteLine(message);
+                serverWriter.Flush();
             }
-            serverWriter2.Close();
-            stream2.Close();
-            client2.Close();
+
+            serverWriter.Close();
+            serverReader.Close();
+            serverStream.Close();
+            serverClient.Close();
         }
         catch (Exception ex)
         {
