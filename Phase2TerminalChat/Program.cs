@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.IO;
+using System.Net;
 using System.Net.Sockets;
 
 class Sender
@@ -14,12 +15,17 @@ class Sender
             StreamWriter serverWriter = new StreamWriter(serverStream);
             serverWriter.WriteLine("SENDER");
             serverWriter.Flush();
+           
+            Console.WriteLine("Enter message here");
+            StreamReader streamReader = new StreamReader(serverStream);
+            string ipAndPort = await streamReader.ReadLineAsync();
             serverWriter.Close();
             serverStream.Close();
             serverClient.Close();
-            Console.WriteLine("Enter message here");
-            
-            TcpListener listener = new TcpListener(IPAddress.Any, 5714);
+            var split = ipAndPort.Split(":");
+            string ipSender = split[0];
+            string port = split[1];
+            TcpListener listener = new TcpListener(IPAddress.Parse(ipSender), int.Parse(port));
             listener.Start();
             TcpClient receiverClient = await listener.AcceptTcpClientAsync();
             NetworkStream receiverStream = receiverClient.GetStream();
