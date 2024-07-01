@@ -1,6 +1,7 @@
-﻿using System.IO;
-using System.Net;
+﻿using System;
+using System.IO;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 class Sender
 {
@@ -8,40 +9,28 @@ class Sender
     {
         try
         {
-            string ipAddress = "192.168.1.100";
-            int Port = 5713;
-            TcpClient serverClient = new TcpClient(ipAddress, Port);
+            string serverIp = "192.168.1.100"; // IP ของ Server
+            int serverPort = 5713;
+
+            TcpClient serverClient = new TcpClient(serverIp, serverPort);
             NetworkStream serverStream = serverClient.GetStream();
             StreamWriter serverWriter = new StreamWriter(serverStream);
+            StreamReader serverReader = new StreamReader(serverStream);
+
             serverWriter.WriteLine("SENDER");
             serverWriter.Flush();
-           
-            Console.WriteLine("Enter message here");
-            StreamReader streamReader = new StreamReader(serverStream);
-            string ipAndPort = await streamReader.ReadLineAsync();
-            serverWriter.Close();
-            serverStream.Close();
-            serverClient.Close();
-            var split = ipAndPort.Split(":");
-            string ipSender = split[0];
-            string port = split[1];
-            TcpListener listener = new TcpListener(IPAddress.Parse(ipSender), int.Parse(port));
-            listener.Start();
-            TcpClient receiverClient = await listener.AcceptTcpClientAsync();
-            NetworkStream receiverStream = receiverClient.GetStream();
-            StreamWriter writerReceiver = new StreamWriter(receiverStream);
-
+            Console.WriteLine("Enter message here..."); 
+       
             string message;
             while ((message = Console.ReadLine()) != null)
             {
-                writerReceiver.WriteLine(message);
-                writerReceiver.Flush();
+                serverWriter.WriteLine(message);
+                serverWriter.Flush();
             }
-            writerReceiver.Close();
-            receiverStream.Close();
-            receiverClient.Close();
-            listener.Stop();
-
+            serverWriter.Close();
+            serverReader.Close();
+            serverStream.Close();
+            serverClient.Close();
         }
         catch (Exception ex)
         {
